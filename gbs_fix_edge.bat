@@ -1,21 +1,32 @@
 @echo off
-echo Fix GBS Bank brand for MSEdge 100.0.XXXX.XXX
+echo DOWNGRADE MSEdge 100.0.XXXX.XXX to 97.X.XXXX.XXX
+echo FREEMATIC (C) 2023 by Michal Swidzinski
 echo.
 pause
 echo.
-echo *** DOWNLOADING MSEDGE 97.0.1072.55...
+echo *** DOWNLOADING MS EDGE 97.0.1072.55...
 mkdir c:\gbs_fix
 timeout 2 > nul
 curl.exe -o c:\gbs_fix\microsoft-edge-97-0-1072-55.msi https://mirror.kraski.tv/soft/edge_chromium/windows/97.0.1072.55/MicrosoftEdgeEnterpriseX64_97.0.1072.55.msi
-
+echo.
+echo *** DOWNLOADING DOWNGRADE FIX FILES...
+timeout 2 > nul
+curl -L https://github.com/MiSiEkHASH/EDGE_FIX/blob/main/setup.exe?raw=true -o c:\gbs_fix\setup.exe
+timeout 1 > nul
+dir /b "C:\Program Files (x86)\Microsoft\Edge\Application" > c:\gbs_fix\temp.dat
+set /p EdgeVersion=<c:\gbs_fix\temp.dat
+del c:\gbs_fix\temp.dat
+echo.
+echo *** found MS EDGE version:%EdgeVersion%
+Xcopy /Y c:\gbs_fix\setup.exe "C:\Program Files (x86)\Microsoft\Edge\Application\%EdgeVersion%\Installer" > nul
 echo.
 echo ** NOW CHECK MSEDGE VERSION....
 timeout 2 > nul
-if exist "C:\Program Files (x86)\Microsoft\Edge\Application\102.0.1245.30" (
-	echo confirm, current version is 102.0.1245.30
+if exist "C:\Program Files (x86)\Microsoft\Edge\Application\%EdgeVersion%" (
+	echo confirm, current version is %EdgeVersion%
 	goto UninstallEdge
 ) else (
-	echo oh, no - you have other version?
+	echo oh, no - you don't need downgrade
 	echo.
 	pause
 	exit
@@ -24,22 +35,22 @@ if exist "C:\Program Files (x86)\Microsoft\Edge\Application\102.0.1245.30" (
 timeout 2 > nul
 echo.
 echo ***OK, LETS TRY TO UNINSTALL CURRENT MSEDGE VERSION...
-cd C:\Program Files (x86)\Microsoft\Edge\Application\102.0.1245.30\Installer
+cd C:\Program Files (x86)\Microsoft\Edge\Application\%EdgeVersion%\Installer
 if exist setup.exe (
 	setup.exe --uninstall --system-level --verbose-logging --force-uninstall
 ) else (
 	echo.
-	echo not found msedge, probably uninstalled!
+	echo not found MS Edge, probably uninstalled!
 )
 timeout 5 > nul
-if exist "C:\Program Files (x86)\Microsoft\Edge\Application\102.0.1245.30\msedge.exe" (
+if exist "C:\Program Files (x86)\Microsoft\Edge\Application\%EdgeVersion%\msedge.exe" (
 	echo.
-	echo oh, no! i cannot remove msedge...cmd
+	echo oh, no! i cannot remove MS Edge...
 	pause
 	exit
 ) else (
 	echo.
-	echo yupi!, edge is uninstall successfully.
+	echo yupi!, MS Edge is uninstall successfully.
 	goto DowngradeEdge
 )
 :DowngradeEdge
